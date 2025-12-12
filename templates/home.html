@@ -1,0 +1,222 @@
+{% extends "base.html" %}
+{% block title %}Home — Garments Productivity Predictor{% endblock %}
+
+{% block content %}
+<style>
+/* Local styles for upgraded home page (uses base variables) */
+.hero {
+  display:grid;
+  grid-template-columns: 1fr 360px;
+  gap:20px;
+  align-items:center;
+  margin-bottom:20px;
+}
+@media (max-width:880px){ .hero{grid-template-columns:1fr} }
+
+.hero-card {
+  padding:20px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.00));
+  border:1px solid rgba(255,255,255,0.03); box-shadow: 0 10px 30px rgba(2,6,23,0.5);
+}
+.kicker {
+  display:inline-flex;align-items:center;gap:10px;padding:6px 10px;border-radius:999px;
+  background: linear-gradient(90deg, rgba(124,58,237,0.12), rgba(6,182,212,0.06));
+  font-weight:700;font-size:13px;color:var(--text);
+}
+.h-cta { display:flex;gap:10px;align-items:center;margin-top:16px; }
+.card-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-top:18px; }
+@media (max-width:1000px){ .card-grid{grid-template-columns:1fr} }
+
+.small-card{
+  padding:14px;border-radius:10px;background:var(--glass);border:1px solid rgba(255,255,255,0.02);
+}
+.accordion{margin-top:18px;border-radius:10px;overflow:hidden;border:1px solid rgba(255,255,255,0.03)}
+.accordion .item{border-bottom:1px solid rgba(255,255,255,0.02)}
+.accordion button{width:100%;text-align:left;padding:12px 16px;border:0;background:transparent;color:var(--text);font-weight:700;cursor:pointer;display:flex;justify-content:space-between;align-items:center}
+.accordion .panel{padding:12px 16px;background:transparent;color:var(--muted);display:none}
+.legend{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px}
+.legend .chip{padding:8px 12px;border-radius:999px;font-weight:700}
+.legend .low{background:linear-gradient(90deg,#ff7a7a,#ffb3b3);color:#2b0b0b}
+.legend .med{background:linear-gradient(90deg,#ffd166,#ffd8a8);color:#2b1600}
+.legend .high{background:linear-gradient(90deg,#7ee3d6,#06b6d4);color:#032226}
+.sample-note{margin-top:8px;color:var(--muted);font-size:13px}
+.testimonial{margin-top:18px;padding:14px;border-radius:10px;background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00));border:1px solid rgba(255,255,255,0.02)}
+.fade-in { animation: fadeUp .45s ease both; }
+@keyframes fadeUp { from{opacity:0; transform:translateY(6px)} to{opacity:1; transform:none} }
+</style>
+
+<!-- HERO -->
+<section class="hero fade-in">
+  <div class="hero-card">
+    <!-- <div class="kicker">GP</div> -->
+    <h1 style="margin:12px 0 6px">Garments Productivity Predictor</h1>
+    <p class="lead" style="margin-bottom:8px;color:var(--muted)">
+      Get fast, actionable productivity estimates for garment production teams — ideal for floor supervisors and planners.
+    </p>
+
+    <div style="display:flex;gap:12px;align-items:center;margin-top:12px">
+      <!-- <a href="{{ url_for('predict') }}" class="btn" style="padding:12px 20px;font-size:15px;">🚀 Start Prediction</a> -->
+      <button id="try-sample" class="btn ghost" style="padding:10px 50px;font-size:14px">Try sample inputs</button>
+      <div style="margin-left:auto;color:var(--muted);font-size:13px">Estimated time: <strong>Instant</strong></div>
+    </div>
+
+    <div class="card-grid" aria-hidden="false">
+      <div class="small-card">
+        <strong>Why use it?</strong>
+        <p style="margin:8px 0 0;color:var(--muted)">Detect performance issues early, optimise staffing, and measure the effect of incentives.</p>
+      </div>
+      <div class="small-card">
+        <strong>Model</strong>
+        <p style="margin:8px 0 0;color:var(--muted)">Random Forest trained on factory logs and productivity records.</p>
+      </div>
+      <div class="small-card">
+        <strong>Trusted</strong>
+        <p style="margin:8px 0 0;color:var(--muted)">Designed for real shop-floor values and quick decision-making.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-card" style="padding:18px">
+    <h3 style="margin-top:0">Quick Score Guide</h3>
+    <p class="small" style="margin:6px 0 12px;color:var(--muted)">Productivity is shown as a score (0–1) and categorized for clarity.</p>
+
+    <div class="legend">
+      <div class="chip low">Low</div>
+      <div class="chip med">Medium</div>
+      <div class="chip high">High</div>
+    </div>
+
+    <div style="margin-top:16px">
+      <strong>3-step flow</strong>
+      <ol style="margin:8px 0 0;color:var(--muted);padding-left:18px">
+        <li>Enter daily production data</li>
+        <li>Model analyses the inputs</li>
+        <li>Receive score & category</li>
+      </ol>
+    </div>
+
+    <div class="sample-note">Tip: Click <em>Try sample inputs</em> to auto-fill the Predict form for quick testing.</div>
+  </div>
+</section>
+
+<!-- INFO + ACCORDION -->
+<section class="fade-in" style="margin-top:18px">
+  <div style="display:grid;grid-template-columns:1fr 360px;gap:18px">
+    <div class="hero-card">
+      <h3 style="margin-top:0">Input Features (grouped)</h3>
+
+      <div class="accordion" id="features-acc">
+        <div class="item">
+          <button type="button">Basic production details <span style="opacity:0.7">▾</span></button>
+          <div class="panel">
+            <ul style="margin:6px 0 0;padding-left:18px;color:var(--muted)">
+              <li><strong>Date</strong> — production date</li>
+              <li><strong>Quarter</strong> — Quarter1–Quarter5</li>
+              <li><strong>Department</strong> — sewing / finishing</li>
+              <li><strong>Day</strong> — weekday</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="item">
+          <button type="button">Workforce & target <span style="opacity:0.7">▾</span></button>
+          <div class="panel">
+            <ul style="margin:6px 0 0;padding-left:18px;color:var(--muted)">
+              <li><strong>Team</strong> — team number</li>
+              <li><strong>Targeted productivity</strong> — planned target (0–1)</li>
+              <li><strong>No. of workers</strong> — team size</li>
+              <li><strong>No. of style change</strong> — disruptions count</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="item">
+          <button type="button">Operational metrics <span style="opacity:0.7">▾</span></button>
+          <div class="panel">
+            <ul style="margin:6px 0 0;padding-left:18px;color:var(--muted)">
+              <li><strong>SMV</strong> — standard minute value</li>
+              <li><strong>WIP</strong> — work-in-progress</li>
+              <li><strong>Over time</strong> — extra minutes</li>
+              <li><strong>Idle time / Idle men</strong> — downtime metrics</li>
+              <li><strong>Incentive</strong> — bonus amount</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <h3 style="margin-top:18px">How to interpret a result</h3>
+      <p style="color:var(--muted)">A higher score means the team is meeting production expectations. Use categories to prioritise interventions.</p>
+
+      <div class="testimonial">
+        <strong>Quick example</strong>
+        <p style="margin:8px 0 0;color:var(--muted)">If predicted category is <span class="chip high">High</span>, no immediate action required. If <span class="chip low">Low</span>, investigate idle time, style changes and incentives.</p>
+      </div>
+    </div>
+
+    <aside class="hero-card" style="padding:18px">
+      <h4 style="margin:0 0 8px">Example run</h4>
+      <div style="color:var(--muted);font-size:14px">
+        <div><strong>Team:</strong> 2</div>
+        <div><strong>Target:</strong> 0.78</div>
+        <div><strong>SMV:</strong> 2.5</div>
+        <div><strong>WIP:</strong> 12</div>
+        <div style="margin-top:10px">
+          <a href="{{ url_for('predict') }}" class="btn" style="text-decoration:none">Open Predict</a>
+          <button id="fill-sample" class="btn ghost" style="margin-left:8px">Auto-fill form</button>
+        </div>
+      </div>
+      <div class="sample-note">Auto-fill will populate the Predict page with sample values for quick testing (client-side).</div>
+    </aside>
+  </div>
+</section>
+
+<!-- FOOTER CTA -->
+<section style="margin-top:20px;text-align:center" class="fade-in">
+  <!-- <a href="{{ url_for('predict') }}" class="btn" style="padding:12px 26px;font-size:15px">Start Prediction</a> -->
+  <div style="margin-top:10px;color:var(--muted)">Want inline help? Hover over any input in the Predict page for quick tips.</div>
+</section>
+
+<!-- Client-side scripts: accordion + sample-fill -->
+<script>
+/* Accordion */
+document.querySelectorAll('.accordion .item button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const panel = btn.nextElementSibling;
+    const open = panel.style.display === 'block';
+    // close all
+    document.querySelectorAll('.accordion .panel').forEach(p => p.style.display = 'none');
+    // toggle
+    panel.style.display = open ? 'none' : 'block';
+  });
+});
+
+/* Sample fill helpers - store sample data in localStorage and open predict page */
+const sampleData = {
+  date: new Date().toISOString().slice(0,10),
+  quarter: 'Quarter2',
+  department: 'sweing',
+  day: 'Monday',
+  team: '2',
+  targeted_productivity: '0.78',
+  smv: '2.5',
+  wip: '12',
+  over_time: '20',
+  incentive: '50',
+  idle_time: '10',
+  idle_men: '2',
+  no_of_style_change: '1',
+  no_of_workers: '20'
+};
+
+document.getElementById('try-sample').addEventListener('click', () => {
+  // store sample then navigate to predict where a small script will read it
+  localStorage.setItem('gp_sample', JSON.stringify(sampleData));
+  window.location.href = "{{ url_for('predict') }}";
+});
+
+document.getElementById('fill-sample').addEventListener('click', () => {
+  localStorage.setItem('gp_sample', JSON.stringify(sampleData));
+  alert('Sample saved — open Predict page to auto-fill the form.');
+});
+</script>
+
+{% endblock %}

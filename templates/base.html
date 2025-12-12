@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>{% block title %}Garments Productivity{% endblock %}</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg: #0f1724; --card: #0b1220; --muted: #94a3b8; --accent: #06b6d4;
+      --accent-2: #7c3aed; --glass: rgba(255,255,255,0.03); --radius: 12px;
+      --shadow: 0 6px 18px rgba(2,6,23,0.6); --max-width: 980px; --text: #e6eef8;
+    }
+    *{box-sizing:border-box} html,body{height:100%}
+    body{
+      margin:0;font-family:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,Arial;
+      background:radial-gradient(1200px 600px at 10% 10%, rgba(124,58,237,0.06), transparent 10%) , radial-gradient(1000px 500px at 90% 90%, rgba(6,182,212,0.04), transparent 10%), var(--bg);
+      color:var(--text); padding:32px 18px; line-height:1.45;
+    }
+    .wrap{max-width:var(--max-width);margin:0 auto}
+    header.site-header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:22px}
+    .brand{display:flex;gap:12px;align-items:center;text-decoration:none;color:var(--text)}
+    .logo{width:50px;height:50px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:grid;place-items:center;font-weight:700;color:white;box-shadow:0 6px 20px rgba(7,12,25,0.6)}
+    .nav{display:flex;gap:10px;align-items:center}
+    .nav a{color:var(--muted);text-decoration:none;padding:8px 12px;border-radius:10px;font-weight:600}
+    .nav a.active, .nav a:hover{color:var(--text);background:linear-gradient(90deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02))}
+    main.card{background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00));border-radius:var(--radius);padding:26px;box-shadow:var(--shadow);border:1px solid rgba(255,255,255,0.03)}
+    h2{margin:0 0 14px 0;font-size:20px} p.lead{color:var(--muted);margin-top:0}
+    label{display:block;font-size:13px;color:var(--muted);margin:10px 0 6px}
+    input,select,textarea{width:100%;padding:12px 14px;background:var(--glass);border:1px solid rgba(255,255,255,0.04);color:var(--text);border-radius:10px;outline:none}
+    button.btn{appearance:none;border:0;padding:11px 16px;border-radius:10px;font-weight:700;background:linear-gradient(90deg,var(--accent),var(--accent-2));color:white;cursor:pointer;box-shadow:0 8px 30px rgba(7,12,25,0.55)}
+    .info{padding:12px;border-radius:10px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.02);color:var(--muted)}
+    footer{margin-top:20px;color:var(--muted);font-size:13px;text-align:center}
+
+    /* badge styles (add these once) */
+    .badge{display:inline-block;padding:8px 14px;border-radius:999px;font-weight:700;font-size:14px}
+    .badge-low{background:linear-gradient(90deg,#ff7a7a,#ffb3b3);color:#2b0b0b}
+    .badge-medium{background:linear-gradient(90deg,#ffd166,#ffd8a8);color:#2b1600}
+    .badge-high{background:linear-gradient(90deg,#7ee3d6,#06b6d4);color:#032226}
+    .badge-unknown{background:#475569;color:#e2e8f0}
+
+    @media (max-width:760px){header.site-header{flex-direction:column;align-items:flex-start;gap:12px}.two-col{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="site-header">
+      <a href="/" class="brand" aria-label="Home">
+        <!-- <div class="logo">GP</div> -->
+        <div><h1>GarmAI — AI for Productivity</h1><div style="font-size:12px;color:var(--muted)">Worker productivity prediction</div></div>
+      </a>
+
+      <nav class="nav" role="navigation" aria-label="Main navigation">
+        <a href="/" class="{% if request.path == '/' %}active{% endif %}">Home</a>
+        <a href="/prediction" class="{% if 'prediction' in request.path %}active{% endif %}">Prediction</a>
+        <!-- <a href="/output" class="{% if 'output' in request.path %}active{% endif %}">Output</a> -->
+        <a href="/about" class="{% if 'about' in request.path %}active{% endif %}">About</a>
+      </nav>
+    </header>
+
+    <!-- SINGLE content block -->
+    <main class="card">
+      {% block content %}{% endblock %}
+    </main>
+
+    <footer>© {{ now().year }} Garments Productivity • Built with care by Sreeshanth Sai</footer>
+  </div>
+</body>
+</html>

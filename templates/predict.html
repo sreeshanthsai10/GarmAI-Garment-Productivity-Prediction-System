@@ -1,0 +1,256 @@
+{% extends "base.html" %}
+{% block title %}Prediction — Garments Productivity{% endblock %}
+
+{% block content %}
+<style>
+/* Professional form layout styles (local to this page) */
+.form-wrap { max-width:800px; margin:0 auto; }
+.form-card {
+  background: var(--glass);
+  border: 1px solid rgba(255,255,255,0.03);
+  padding:18px;
+  border-radius:12px;
+  box-shadow: 0 8px 30px rgba(2,6,23,0.45);
+}
+.grid-2 { display:grid; grid-template-columns: 1fr 1fr; gap:14px; }
+@media (max-width:900px) { .grid-2 { grid-template-columns: 1fr } }
+
+.field { display:flex; flex-direction:column; margin-bottom:12px; }
+.label { font-weight:700; font-size:15px; color:var(--text); margin-bottom:6px; display:flex; align-items:center; gap:8px; }
+.hint { font-size:15px; color:var(--muted); margin-top:6px; }
+.input, select, textarea {
+  background: rgba(255,255,255,0.03);   /* FIX: remove white background */
+  border: 1px solid rgba(255,255,255,0.08);
+  padding:10px 12px;
+  border-radius:8px;
+  color:var(--text);
+  outline:none;
+}
+.input::placeholder { color: rgba(255,255,255,0.18); }
+.row { display:flex; gap:12px; align-items:center; }
+.kv { font-size:13px; color:var(--muted); }
+.section-title { margin:0 0 12px; font-size:16px  }
+.form-footer { display:flex; gap:12px; align-items:center; margin-top:14px; }
+.btn-primary { padding:10px 14px; border-radius:10px; border:0; background:linear-gradient(90deg,#06b6d4,#3b82f6); color:white; font-weight:700; cursor:pointer; }
+.btn-ghost { padding:10px 12px; border-radius:10px; background:transparent; border:1px solid rgba(255,255,255,0.04); color:var(--text); cursor:pointer; }
+.btn-small { padding:8px 10px; border-radius:8px; font-size:13px; }
+
+.info-note { margin-left:auto; font-size:13px; color:var(--muted); }
+.error-box { background: rgba(255,90,90,0.06); border:1px solid rgba(255,90,90,0.10); color:#ffdede; padding:10px 12px; border-radius:8px; margin-bottom:12px; }
+
+.input:focus, select:focus { box-shadow: 0 6px 18px rgba(6,182,212,0.06); border-color: rgba(6,182,212,0.18); }
+
+.icon { width:18px; height:18px; display:inline-block; text-align:center; line-height:18px; border-radius:6px; background: rgba(255,255,255,0.02); color:var(--muted); font-size:12px }
+.label [title] { cursor:help; text-decoration:underline dotted; }
+
+/* Force dark dropdown for select and options */
+select.input {
+  background-color: #0f172a !important; 
+  color: #e2e8f0 !important;
+}
+
+select.input option {
+  background-color: #0f172a !important;
+  color: #e2e8f0 !important;
+}
+
+/* Hover highlight */
+select.input option:hover {
+  background-color: #1e293b !important;
+}
+
+/* Remove white focus outline on some browsers */
+select.input:focus {
+  outline: none !important;
+  background-color: #0f172a !important;
+}
+</style>
+
+<div class="form-wrap">
+  <h2>Predict Worker Productivity</h2>
+  <p class="lead">Fill the inputs below and click <strong>Predict</strong> to estimate worker productivity.</p>
+
+  {% if error %}
+    <div class="error-box">
+      <strong>Error:</strong> {{ error }}
+    </div>
+  {% endif %}
+
+  <div class="form-card">
+    <form id="predict-form" action="{{ url_for('predict') }}" method="post" novalidate>
+
+      <!-- BASIC INFO -->
+      <div class="section-title">Basic Production Details</div>
+      <div class="grid-2">
+        <div class="field">
+          <label class="label" for="date">Date</label>
+          <input id="date" name="date" class="input" type="date" required>
+        </div>
+
+        <div class="field">
+          <label class="label" for="quarter">Quarter</label>
+          <select id="quarter" name="quarter" class="input" required>
+            <option value="">Choose quarter</option>
+            {% for q in ['Quarter1','Quarter2','Quarter3','Quarter4','Quarter5'] %}
+              <option value="{{ q }}">{{ q }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+
+      <div class="grid-2" style="margin-top:6px;">
+        <div class="field">
+          <label class="label" for="department">Department</label>
+          <select id="department" name="department" class="input" required>
+            <option value="">Choose department</option>
+            <option value="sweing">sweing</option>
+            <option value="finishing">finishing</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label class="label" for="day">Day</label>
+          <select id="day" name="day" class="input" required>
+            <option value="">Choose day</option>
+            {% for d in ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'] %}
+              <option value="{{ d }}">{{ d }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+
+      <!-- TEAM & TARGET -->
+      <div class="section-title" style="margin-top:18px">Team & Target</div>
+      <div class="grid-2">
+        <div class="field">
+          <label class="label" for="team">Team</label>
+          <input id="team" name="team" class="input" type="number" min="0" required placeholder="e.g., 1">
+        </div>
+
+        <div class="field">
+          <label class="label" for="targeted_productivity">Targeted Productivity (0–1)</label>
+          <input id="targeted_productivity" name="targeted_productivity" class="input" type="number" step="0.01" min="0" max="1" required placeholder="e.g., 0.75">
+        </div>
+      </div>
+
+      <!-- PRODUCTION METRICS -->
+      <div class="section-title" style="margin-top:18px">Production Metrics</div>
+      <div class="grid-2">
+        <div class="field">
+          <label class="label" for="smv">SMV (minutes)</label>
+          <input id="smv" name="smv" class="input" type="number" step="0.01" min="0" required>
+        </div>
+
+        <div class="field">
+          <label class="label" for="wip">WIP</label>
+          <input id="wip" name="wip" class="input" type="number" min="0" required>
+        </div>
+      </div>
+
+      <div class="grid-2" style="margin-top:6px;">
+        <div class="field">
+          <label class="label" for="over_time">Overtime (minutes)</label>
+          <input id="over_time" name="over_time" class="input" type="number" min="0" required>
+        </div>
+
+        <div class="field">
+          <label class="label" for="incentive">Incentive</label>
+          <input id="incentive" name="incentive" class="input" type="number" min="0" required>
+        </div>
+      </div>
+
+      <!-- DOWNTIME -->
+      <div class="section-title" style="margin-top:18px">Downtime & Workforce</div>
+      <div class="grid-2">
+        <div class="field">
+          <label class="label" for="idle_time">Idle Time</label>
+          <input id="idle_time" name="idle_time" class="input" type="number" step="0.01" min="0" required>
+        </div>
+
+        <div class="field">
+          <label class="label" for="idle_men">Idle Men</label>
+          <input id="idle_men" name="idle_men" class="input" type="number" min="0" required>
+        </div>
+      </div>
+
+      <div class="grid-2" style="margin-top:6px;">
+        <div class="field">
+          <label class="label" for="no_of_style_change">No. of Style Change</label>
+          <input id="no_of_style_change" name="no_of_style_change" class="input" type="number" min="0" required>
+        </div>
+
+        <div class="field">
+          <label class="label" for="no_of_workers">No. of Workers</label>
+          <input id="no_of_workers" name="no_of_workers" class="input" type="number" min="0" required>
+        </div>
+      </div>
+
+      <!-- NOTES -->
+      <div class="field" style="margin-top:18px;">
+        <label class="label" for="notes">Notes (optional)</label>
+        <textarea id="notes" name="notes" class="input" rows="3"></textarea>
+      </div>
+
+      <!-- BUTTONS -->
+      <div class="form-footer">
+        <button type="submit" class="btn-primary">Predict</button>
+        <button type="reset" class="btn-ghost">Reset</button>
+
+        <!-- Auto fill button -->
+        <button type="button" id="autofill" class="btn-ghost btn-small">Auto-fill example</button>
+
+        <div class="info-note">Tip: use realistic values for better predictions.</div>
+      </div>
+
+    </form>
+  </div>
+</div>
+
+<script>
+// Required fields validation
+const requiredFields = ['date','quarter','department','day','team','targeted_productivity','smv','wip','over_time','incentive','idle_time','idle_men','no_of_style_change','no_of_workers'];
+
+document.getElementById('predict-form').addEventListener('submit', function(e){
+  const missing = requiredFields.filter(name => {
+    const el = document.querySelector(`[name="${name}"]`);
+    return !el || el.value === '';
+  });
+
+  if(missing.length){
+    e.preventDefault();
+    alert('Please fill required fields: ' + missing.join(', '));
+    const first = document.querySelector(`[name="${missing[0]}"]`);
+    if(first) first.focus();
+    return false;
+  }
+});
+
+// Auto-fill example values ONLY when button is clicked
+const sample = {
+  date: new Date().toISOString().slice(0,10),
+  quarter: 'Quarter2',
+  department: 'sweing',
+  day: 'Monday',
+  team: '2',
+  targeted_productivity: '0.78',
+  smv: '2.5',
+  wip: '12',
+  over_time: '20',
+  incentive: '50',
+  idle_time: '10',
+  idle_men: '2',
+  no_of_style_change: '1',
+  no_of_workers: '20',
+  notes: 'Sample values for demo'
+};
+
+document.getElementById('autofill').addEventListener('click', () => {
+  for (const k in sample){
+    const el = document.querySelector(`[name="${k}"]`);
+    if(el) el.value = sample[k];
+  }
+  alert('Form auto-filled with example values.');
+});
+</script>
+
+{% endblock %}

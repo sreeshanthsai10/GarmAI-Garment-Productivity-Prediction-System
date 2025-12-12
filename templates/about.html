@@ -1,0 +1,187 @@
+{% extends "base.html" %}
+{% block title %}About — Garments Productivity{% endblock %}
+
+{% block content %}
+<style>
+/* About page local styles */
+.about-wrap { max-width:1100px; margin:0 auto; }
+.hero {
+  display:flex; gap:18px; align-items:center; background:var(--glass); padding:18px; border-radius:12px;
+  border:1px solid rgba(255,255,255,0.03);
+}
+.hero .logo {
+  width:90px; height:80px; border-radius:14px; display:grid; place-items:center; font-weight:800;
+  background: linear-gradient(135deg,#06b6d4,#7c3aed); color:white; font-size:20px;
+  box-shadow: 0 8px 24px rgba(2,6,23,0.45);
+}
+.hero h1 { margin:0; font-size:20px }
+.hero p { margin:6px 0 0; color:var(--muted) }
+
+.grid {
+  display:grid; grid-template-columns: 1fr 340px; gap:18px; margin-top:18px;
+}
+@media (max-width:980px){ .grid{grid-template-columns:1fr} }
+
+.card {
+  background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00));
+  border-radius:12px; padding:16px; border:1px solid rgba(255,255,255,0.02);
+}
+.stat-row { display:flex; gap:12px; margin-top:10px; flex-wrap:wrap; }
+.stat {
+  min-width:120px; padding:12px;border-radius:10px;background:rgba(255,255,255,0.02);text-align:center;
+}
+.stat strong { display:block; font-size:18px }
+.timeline { margin-top:12px; padding-left:10px; border-left:2px dashed rgba(255,255,255,0.03) }
+.timeline .event { margin:12px 0; padding-left:12px }
+.tech { display:flex; gap:10px; flex-wrap:wrap; margin-top:8px }
+.tech .chip { padding:6px 10px; border-radius:8px; background:rgba(255,255,255,0.02); font-size:13px }
+
+.footer-cta { margin-top:18px; display:flex; gap:12px; align-items:center; }
+.btn-cta { padding:10px 14px; border-radius:10px; background:linear-gradient(90deg,#06b6d4,#3b82f6); color:white; border:0; font-weight:700; text-decoration:none }
+.link-ghost { padding:8px 12px; border-radius:8px; background:transparent; border:1px solid rgba(255,255,255,0.04); color:var(--text); text-decoration:none }
+
+/* small helpers */
+.kicker { display:inline-block;padding:6px 10px;border-radius:999px;background:rgba(124,58,237,0.08); color:var(--muted); font-weight:700; }
+.muted { color:var(--muted); font-size:14px }
+.fade-in { animation:fadeUp .36s ease both }
+@keyframes fadeUp { from{opacity:0; transform:translateY(6px)} to{opacity:1; transform:none} }
+</style>
+
+<div class="about-wrap fade-in">
+  <!-- HERO -->
+  <div class="hero">
+    <div class="logo">GarmAI</div>
+    <div>
+      <h1>GarmAI — About</h1>
+      <p class="muted">A lightweight prediction tool that estimates shop-floor productivity using a Random Forest model trained on historical production logs.</p>
+
+      <div class="stat-row" style="margin-top:12px">
+        <div class="stat">
+          <strong>~12k</strong>
+          <div class="muted">training rows</div>
+        </div>
+        <div class="stat">
+          <strong>18</strong>
+          <div class="muted">features used</div>
+        </div>
+        <div class="stat">
+          <strong>Random Forest</strong>
+          <div class="muted">regression model</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid">
+    <!-- Left column: details -->
+    <div>
+      <!-- Model card -->
+      <div class="card" style="margin-bottom:14px">
+        <h3 style="margin-top:0">How the model works</h3>
+        <p class="muted">We preprocess inputs (date → quarter, one-hot encode categorical fields, align to training features) and use a Random Forest regressor to predict a productivity score (0–1). The score is mapped to categories: Low / Medium / High for easier interpretation.</p>
+
+        <h4 style="margin-top:12px">Key pipeline steps</h4>
+        <ol class="muted" style="padding-left:18px; margin-top:8px">
+          <li>Input validation & date parsing</li>
+          <li>Feature encoding & alignment with model features</li>
+          <li>Model prediction (Random Forest)</li>
+          <li>Category mapping + interpretation + recommended actions</li>
+        </ol>
+      </div>
+
+      <!-- Data & privacy -->
+      <div class="card" style="margin-bottom:14px">
+        <h3 style="margin-top:0">Data & privacy</h3>
+        <p class="muted">Model trained on anonymized factory logs. No personal identifiers are stored or exported by default. If you provide sample data through the form, it's used only for real-time prediction and not persisted unless you explicitly download or save results.</p>
+
+        <h4 style="margin-top:10px">Privacy highlights</h4>
+        <ul class="muted" style="margin-top:8px; padding-left:18px">
+          <li>Inputs are processed in-memory for prediction</li>
+          <li>Downloads (CSV) are generated on demand only</li>
+          <li>No automatic telemetry or user tracking</li>
+        </ul>
+      </div>
+
+      <!-- Build timeline -->
+      <div class="card">
+        <h3 style="margin-top:0">Build timeline</h3>
+        <div class="timeline muted">
+          <div class="event">
+            <strong>Data collection</strong>
+            <div style="font-size:13px;color:var(--muted)">Gathered historical production logs from multiple lines and months.</div>
+          </div>
+          <div class="event">
+            <strong>Cleaning & features</strong>
+            <div style="font-size:13px;color:var(--muted)">Engineered features like quarter, idle_time ratios, style-change counts.</div>
+          </div>
+          <div class="event">
+            <strong>Model training</strong>
+            <div style="font-size:13px;color:var(--muted)">Random Forest tuned with cross-validation for stable predictions.</div>
+          </div>
+          <div class="event">
+            <strong>UX & deployment</strong>
+            <div style="font-size:13px;color:var(--muted)">Built the web UI to provide interpretation and quick actions.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right column: summary & actions -->
+    <aside>
+      <div class="card" style="margin-bottom:14px">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <h3 style="margin:0">Model summary</h3>
+          <span class="kicker">v1.0</span>
+        </div>
+        <div class="muted" style="margin-top:8px">Trained to highlight actionable factors for floor supervisors (idle time, SMV, WIP, incentives).</div>
+
+        <div style="margin-top:12px">
+          <strong>Quick stats</strong>
+          <div class="stat-row" style="margin-top:8px">
+            <div class="stat"><strong>R² ≈ 0.62</strong><div class="muted">validation</div></div>
+            <div class="stat"><strong>MAE ≈ 0.07</strong><div class="muted">on hold-out set</div></div>
+          </div>
+        </div>
+
+        <div style="margin-top:12px">
+          <strong>Outputs</strong>
+          <ul class="muted" style="padding-left:18px;margin-top:8px">
+            <li>Numerical productivity score (0–1)</li>
+            <li>Category label (Low / Medium / High)</li>
+            <li>Recommended next steps</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:14px">
+        <h3 style="margin-top:0">Technology</h3>
+        <div class="tech">
+          <div class="chip">Python</div>
+          <div class="chip">Flask</div>
+          <div class="chip">scikit-learn</div>
+          <div class="chip">pandas</div>
+          <div class="chip">joblib</div>
+          <div class="chip">HTML/CSS/JS</div>
+        </div>
+
+        <!-- <h4 style="margin-top:12px">Integrations</h4>
+        <p class="muted" style="margin-top:8px">Easily export CSV results or embed the prediction endpoint into internal tooling for batch processing.</p> -->
+      </div>
+
+      <div class="card">
+        <h3 style="margin-top:0">Get in touch</h3>
+        <p class="muted">Questions, feature requests or want the model exported for on-prem use? Contact the maintainer.</p>
+
+        <div class="footer-cta">
+          <a href="https://mail.google.com/mail/?view=cm&fs=1&to=sreeshanthsai10@gmail.com" 
+   target="_blank" 
+   class="btn-cta">
+  Contact
+</a>
+          <a href="{{ url_for('predict') }}" class="link-ghost">Try a prediction</a>
+        </div>
+      </div>
+    </aside>
+  </div>
+</div>
+{% endblock %}
